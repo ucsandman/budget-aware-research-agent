@@ -1,285 +1,197 @@
 # Budget-Aware Research Agent
 
-A research agent that automatically routes between free and paid search based on query characteristics, free result quality, and expected value gain.
-
-## Features
-
-- **Smart routing** — Analyzes query type, freshness needs, topic niche-ness, and free result quality to decide whether paid search is worth it
-- **Dynamic provider discovery** — Queries [402 Index](https://402index.io) at runtime to find the cheapest healthy x402 provider for each query category
-- **LLM synthesis** — Uses gpt-4o-mini (or Gemini Flash when quota allows) to synthesize sources into coherent answers
-- **Budget controls** — Dry-run by default, configurable max spend per query
-- **Caching** — Free search results cached for 6h to avoid redundant calls
-- **Eval framework** — Built-in eval runner with routing accuracy metrics
+A zero-dependency Node.js research agent that routes queries between free and paid (x402) search sources. It analyzes query type, freshness needs, topic niche-ness, and free result quality to decide whether paying for search is worth the cost.
 
 ## Quick Start
 
-**Ask a question:**
 ```bash
-research "What is x402?"
-research --live "Solana TPS in the last 24 hours"
-research --live --current "Latest agent framework releases"
-research --live --budget 0.10 "DeFi protocols on Base by TVL"
+git clone https://github.com/ucsandman/budget-aware-research-agent.git
+cd budget-aware-research-agent
+cp .env.example .env
+# Edit .env with your API keys (at minimum, set BRAVE_API_KEY or OPENAI_API_KEY)
+
+# Ask a question (dry run — no payments)
+node research.mjs "What is x402?"
+
+# Enable paid search (requires AgentCash wallet)
+node research.mjs --live "Solana TPS in the last 24 hours"
+
+# Set a budget cap
+node research.mjs --live --budget 0.10 "DeFi protocols on Base by TVL"
+
+# Flag as needing fresh data
+node research.mjs --live --current "Latest agent framework releases"
+
+# Run tests
+npm test
 ```
-
-**View insights:**
-```bash
-research-dashboard     # Open cost dashboard (HTML)
-research-costs         # Cost summary & breakdown
-research-history defi  # Find past DeFi-related queries
-research-retry list    # See failed queries and retry strategies
-```
-
-**Raw/advanced usage:**
-```bash
-node research/budget-aware-research-agent/research.mjs --json "What is x402?"
-node research/budget-aware-research-agent/research.mjs --answer --no-log "Question"
-```
-
-All commands assume `C:\Users\sandm\clawd\bin` is in PATH (it is).
-
-## How Routing Works
-
-The agent classifies queries and evaluates whether paid search would add enough value to justify the cost.
-
-### Query Classification
-
-- **Conceptual** — "What is X?" questions with good free documentation
-- **Time-sensitive** — Recent events, current data, "last N days/weeks"
-- **Niche** — DeFi, specific chains, market research, obscure tools
-- **Strategic** — Opinion/reasoning questions better served by LLM than search
-
-### Escalation Logic
-
-Paid search triggers when:
-- Query is flagged `--current` or mentions recent time frames
-- Free results are stale (freshness score < 0.5)
-- Topic is niche and free results are generic
-- Free search returned ≤1 result
-- Estimated value gain ≥ 0.30 threshold
-
-Stays free when:
-- Budget < $0.01
-- Query is conceptual and has 2+ decent free results
-- Query asks for strategic reasoning (better for LLM)
-- Scope is too vague for paid to help
-
-### Provider Selection
-
-The agent queries **402 Index** at runtime to discover x402 providers by category:
-- Search → web research (Exa, Perplexity, etc.)
-- DeFi → blockchain data providers
-- Social → Twitter/X search APIs
-
-Picks the **cheapest healthy provider** that fits budget. Falls back to `stableenrich.dev/api/exa/search` if 402 Index is unavailable.
-
-## Operations & Monitoring
-
-### Cost Tracking
-```bash
-# View summary
-research-costs summary
-
-# View recent queries (tail N)
-research-costs tail 10
-
-# Reset ledger (if needed)
-research-costs reset
-```
-
-### Query History
-```bash
-# Search by query content
-research-history "defi" --mode query
-
-# Search by provider
-research-history "exa" --mode provider
-
-# Search anything (queries + providers)
-research-history "base" --mode all
-```
-
-### Failure Recovery
-```bash
-# List failed queries
-research-retry list
-
-# Get retry strategies for a specific failure
-research-retry suggest 1
-```
-
-### Visual Dashboard
-```bash
-research-dashboard  # Generates dashboard.html with charts/tables
-```
-
-Then open `research/budget-aware-research-agent/dashboard.html` in your browser.
-
-## Eval Framework
-
-Run the eval suite to test routing accuracy:
-
-```bash
-# Dry run (default)
-node research/budget-aware-research-agent/eval/run-eval.mjs
-
-# Run specific queries
-node research/budget-aware-research-agent/eval/run-eval.mjs --ids conceptual_01,current_01
-
-# Live paid execution (will spend real USDC)
-node research/budget-aware-research-agent/eval/run-eval.mjs --live
-```
-
-Eval queries are in `eval/eval-queries.json`. Results saved to `eval/results/`.
-
-**Current accuracy:** 78% (7/9 correct routing decisions in dry-run eval)
 
 ## Architecture
 
 ```
-research.mjs                   # CLI wrapper
-└─> run-prototype.mjs          # Main orchestration
-    ├─> provider-discovery.mjs # Query 402 Index for paid providers
-    ├─> free-research.mjs      # Brave API + DuckDuckGo fallback
-    ├─> query-rewrite.mjs      # Sharpen vague queries for paid search
-    ├─> synthesize.mjs         # LLM answer synthesis
-    └─> tmp/run-agentcash-fetch.mjs  # x402 payment + fetch
+                        ┌─────────────┐
+                        │  research   │  CLI wrapper
+                        │   .mjs      │
+                        └──────┬──────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │  run-prototype.mjs   │  Main orchestrator
+                    └──┬───┬───┬───┬───┬──┘
+                       │   │   │   │   │
+          ┌────────────┘   │   │   │   └────────────┐
+          ▼                ▼   │   ▼                ▼
+  ┌───────────────┐  ┌────────┐│┌──────────┐  ┌──────────┐
+  │free-research  │  │query-  │││synthesize│  │  cost-   │
+  │   .mjs        │  │rewrite │││  .mjs    │  │ tracker  │
+  │               │  │ .mjs   │││          │  │  .mjs    │
+  │ Brave API     │  └────────┘│└──────────┘  └──────────┘
+  │ DuckDuckGo    │            │  LLM synth
+  │ Crossref      │   ┌───────▼────────┐
+  │ DefiLlama     │   │provider-       │
+  └───────────────┘   │discovery.mjs   │
+                      │                │
+                      │ 402 Index API  │
+                      │ x402 payments  │
+                      └────────────────┘
 ```
+
+### How Routing Works
+
+1. **Free pass** — Searches Brave (or DuckDuckGo fallback), enriches top results, scores quality
+2. **Decision** — Evaluates query shape (conceptual? time-sensitive? niche?) against free result quality
+3. **Escalate or stay** — If estimated value gain >= 0.30 threshold, routes to paid x402 provider
+4. **Synthesize** — LLM combines all sources into a coherent answer
+
+**Stays free when:**
+- Query is conceptual ("What is X?") with 2+ decent free results
+- Query asks for strategic reasoning (better served by LLM than search)
+- Budget < $0.01
+- Scope is too vague for paid to help
+
+**Escalates to paid when:**
+- Query needs fresh data (--current, "last N days")
+- Topic is niche (DeFi, specific chains, market research)
+- Free search returned thin or stale results
+- Estimated value gain exceeds threshold
+
+### Provider Discovery
+
+The agent queries [402 Index](https://402index.io) at runtime to find the cheapest healthy x402 provider for each query category (search, enrichment, social, etc.). Falls back to a default provider if the index is unavailable.
 
 ## Configuration
 
-Set environment variables:
+Set in `.env`:
 
-- `BRAVE_API_KEY` — Unlock Brave Search (much better than DDG scraping)
-- `GEMINI_API_KEY` — Preferred for synthesis (cheapest)
-- `OPENAI_API_KEY` — Fallback for synthesis
-- AgentCash wallet must be funded (onboard via `npx agentcash@latest onboard <code>`)
+| Variable | Required | Description |
+|---|---|---|
+| `BRAVE_API_KEY` | Recommended | Brave Search API key (much better than DDG scraping) |
+| `OPENAI_API_KEY` | One of these | OpenAI key for gpt-4o-mini synthesis |
+| `GEMINI_API_KEY` | One of these | Google Gemini key (cheapest synthesis option) |
+| `AGNTLY_API_KEY` | Optional | Agntly marketplace integration |
+| `AGNTLY_BASE_URL` | Optional | Agntly API base URL |
+
+At minimum, set `BRAVE_API_KEY` and one LLM key (`OPENAI_API_KEY` or `GEMINI_API_KEY`).
+
+For paid search, you'll also need an [AgentCash](https://agentcash.dev) wallet (`npx agentcash@latest onboard`).
+
+## CLI Reference
+
+### Main Commands
+
+```bash
+node research.mjs [options] "your question"
+```
+
+| Flag | Description |
+|---|---|
+| `--live` | Enable paid search (default: dry run) |
+| `--budget <USD>` | Max spend per query (default: 0.25) |
+| `--current` | Flag query as needing fresh results |
+| `--deep` | Flag query as needing depth |
+| `--json` | Output full JSON instead of answer |
+| `--no-log` | Don't write to run log |
+
+### Tools
+
+```bash
+node cost-tracker.mjs summary          # Cost breakdown
+node cost-tracker.mjs tail 10          # Recent queries
+node history-search.mjs "defi"         # Search past queries
+node retry-handler.mjs list            # Failed queries
+node batch.mjs --file queries.txt      # Batch mode
+node compare.mjs "your question"       # Free vs paid side-by-side
+node dashboard.mjs                     # Generate HTML dashboard
+```
+
+### Agntly Marketplace Server
+
+```bash
+node server/agntly-server.mjs          # Full server (uses subprocess)
+node server/agntly-server-simple.mjs   # Mock server (for testing)
+node server/agntly-setup.mjs register  # Register on marketplace
+```
 
 ## Cost Profile
 
-**Free path:** $0 (Brave/DDG + local LLM synthesis)
+| Path | Cost |
+|---|---|
+| Free (Brave/DDG + LLM synthesis) | $0 |
+| Paid dry run | $0 |
+| Paid live (x402 search + LLM) | ~$0.005/query |
 
-**Paid path (dry run):** $0
+Default budget: $0.25/query. Actual spend is typically much lower.
 
-**Paid path (live):**
-- x402 search: ~$0.005 per query (Exa via StableEnrich)
-- LLM synthesis: ~$0.0003 (gpt-4o-mini)
-- **Total:** ~$0.0053 per paid query (verified via cost tracker)
-
-Default budget: $0.25/query (configurable via `--budget`)
-
-**Full tool suite:**
-```bash
-# Cost analytics (CLI)
-research-costs summary
-research-costs tail 20
-
-# Visual dashboard (HTML)
-research-dashboard          # opens dashboard.html
-
-# Search history
-research-history "x402"
-research-history "defi" --mode answer
-
-# Retry failed queries
-research-retry list
-research-retry suggest 1
-
-# Reset ledger
-research-costs reset
-```
-
-All queries logged to:
-- `logs/cost-ledger.jsonl` — cost tracking
-- `logs/runs.jsonl` — full query/answer/routing logs
-- `dashboard.html` — visual analytics (auto-generated)
-
-## Known Issues
-
-- **DuckDuckGo timeout on specific queries** — Some queries cause DuckDuckGo to hang indefinitely (likely bot detection). The free research path has a 25s timeout with fallback, but Node's event loop may keep the process alive due to dangling fetch handles. **Fix:** Set `BRAVE_API_KEY` to bypass DuckDuckGo entirely.
-- Gemini free tier quota exhausted → using OpenAI gpt-4o-mini for synthesis (fallback works fine)
-- Routing accuracy is 78% (7/9 correct) — some edge cases where niche detection conflicts with conceptual exemptions
-
-## What's Included
-
-✅ Smart free/paid routing with 78% accuracy
-✅ Dynamic provider discovery via 402 Index
-✅ Cost tracking & JSONL ledger
-✅ Query history search
-✅ Failure detection & retry suggestions
-✅ HTML cost dashboard with daily charts
-✅ LLM answer synthesis (gpt-4o-mini, Gemini fallback)
-✅ Global CLI commands (`research`, `research-costs`, etc.)
-✅ Eval framework with 10-query test suite
-
-## Batch Mode
-
-Run multiple queries from a file:
+## Eval Framework
 
 ```bash
-# Create a query file (one per line, # for comments)
-echo "What is EigenLayer?" > queries.txt
-echo "What are rollups?" >> queries.txt
-
-# Run batch
-research-batch --file queries.txt
-research-batch --file queries.txt --live --budget 0.05
-research-batch --file queries.txt --output results.md
-
-# Or inline
-research-batch "question 1" "question 2" "question 3"
+node eval/run-eval.mjs                 # Dry run eval (10 queries)
+node eval/run-eval.mjs --live          # Live eval (spends real USDC)
+node eval/run-eval.mjs --ids conceptual_01,current_01  # Subset
 ```
 
-## Compare Mode
+Current routing accuracy: 78% (7/9 correct routing decisions).
 
-Side-by-side free vs paid results for the same query:
-
-```bash
-research-compare "What DeFi protocols on Base have the highest TVL?"
-```
-
-Shows both answer paths with latency, confidence delta, and cost.
-
-## Roadmap
-
-- [ ] Add `BRAVE_API_KEY` to eliminate DuckDuckGo timeout edge case
-- [ ] Multi-provider aggregation (query multiple paid sources in parallel)
-- [ ] Streaming output mode for long synthesis
-- [ ] Budget guardrails & spend alerts
-
-## Example Outputs
-
-### Conceptual (free path)
+## Project Structure
 
 ```
-Q: What is x402?
-## Answer
-x402 is an open standard for internet-native payments designed to facilitate
-seamless micropayments for both humans and AI agents...
-
-## Sources
-- What is x402? | Ledger
-- x402 - Payment Required | Internet-Native Payments Standard
-
----
-Free path | conceptual_answer_sufficient | Confidence: 88% | Synthesis: llm-openai-gpt4o-mini
+├── research.mjs                 # CLI entry point
+├── run-prototype.mjs            # Main orchestrator + routing logic
+├── free-research.mjs            # Free search (Brave, DuckDuckGo)
+├── structured-free-providers.mjs # Crossref, DefiLlama integration
+├── free-provider-registry.mjs   # Intent-based provider matching
+├── provider-discovery.mjs       # 402 Index provider discovery
+├── query-rewrite.mjs            # Query sharpening for paid search
+├── synthesize.mjs               # LLM answer synthesis
+├── cost-tracker.mjs             # JSONL cost ledger
+├── batch.mjs                    # Batch query runner
+├── compare.mjs                  # Free vs paid comparison
+├── dashboard.mjs                # HTML dashboard generator
+├── history-search.mjs           # Query history search
+├── retry-handler.mjs            # Failure detection + retry
+├── lib/
+│   └── agentcash-fetch.mjs      # x402 payment wrapper
+├── server/
+│   ├── agntly-server.mjs        # Agntly marketplace HTTP server
+│   ├── agntly-server-simple.mjs # Mock server for testing
+│   └── agntly-setup.mjs         # Marketplace registration
+├── eval/
+│   ├── run-eval.mjs             # Eval runner
+│   └── eval-queries.json        # Test query suite
+├── fixtures/                    # Benchmark data
+└── test/
+    └── routing.test.mjs         # Routing decision tests
 ```
 
-### Time-sensitive (paid path)
+## Contributing
 
-```
-Q: What new agent framework releases happened in the last 2 weeks?
-## Answer
-In the last two weeks, there have been no new releases or major updates to the
-Microsoft Agent Framework. The latest release was noted on October 3, 2025...
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/my-change`)
+3. Run tests (`npm test`)
+4. Commit with a descriptive message
+5. Open a PR
 
-## Sources
-- Releases · microsoft/agent-framework · GitHub
-- Microsoft Releases 'Microsoft Agent Framework' - MarkTechPost [paid]
+Keep it zero-dependency (Node built-ins only). Match existing code style.
 
----
-Provider: Exa (via 402 Index) | $0.005 | Confidence: 80% | Synthesis: llm-openai-gpt4o-mini
-```
+## License
 
----
-
-Built 2026-04-03 by MoltFire 🔥
+MIT — see [LICENSE](LICENSE).
