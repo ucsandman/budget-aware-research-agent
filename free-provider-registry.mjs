@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const REGISTRY_PATH = 'C:/Users/sandm/clawd/research/budget-aware-research-agent/free-provider-registry.json';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REGISTRY_PATH = join(__dirname, 'free-provider-registry.json');
 
 export function loadFreeProviderRegistry() {
   return JSON.parse(readFileSync(REGISTRY_PATH, 'utf8'));
@@ -31,10 +34,10 @@ export function suggestFreeProviders(query) {
 }
 
 const invokedPath = process.argv[1]?.replace(/\\/g, '/').toLowerCase() ?? '';
-if (invokedPath.endsWith('/research/budget-aware-research-agent/free-provider-registry.mjs')) {
+if (invokedPath.endsWith('/free-provider-registry.mjs')) {
   const query = process.argv.slice(2).join(' ').trim();
   if (!query) {
-    console.error('Usage: node research/budget-aware-research-agent/free-provider-registry.mjs "<query>"');
+    console.error('Usage: node free-provider-registry.mjs "<query>"');
     process.exit(1);
   }
   console.log(JSON.stringify(suggestFreeProviders(query), null, 2));

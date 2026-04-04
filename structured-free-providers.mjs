@@ -493,10 +493,10 @@ export async function runStructuredFreeProviders(query, options = {}) {
 }
 
 const invokedPath = process.argv[1]?.replace(/\\/g, '/').toLowerCase() ?? '';
-if (invokedPath.endsWith('/research/budget-aware-research-agent/structured-free-providers.mjs')) {
+if (invokedPath.endsWith('/structured-free-providers.mjs')) {
   const query = process.argv.slice(2).join(' ').trim();
   if (!query) {
-    console.error('Usage: node research/budget-aware-research-agent/structured-free-providers.mjs "<query>"');
+    console.error('Usage: node structured-free-providers.mjs "<query>"');
     process.exit(1);
   }
   runStructuredFreeProviders(query)

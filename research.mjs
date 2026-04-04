@@ -66,7 +66,7 @@ fwd.push('--query', query);
 
 const result = spawnSync(process.execPath, [PROTOTYPE, ...fwd], {
   encoding: 'utf8',
-  cwd: 'C:/Users/sandm/clawd',
+  cwd: __dirname,
   env: process.env,
   shell: false
 });

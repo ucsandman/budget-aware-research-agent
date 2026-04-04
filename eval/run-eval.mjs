@@ -49,7 +49,7 @@ for (const q of filtered) {
   const result = spawnSync(process.execPath, fwdArgs, {
     encoding: 'utf8',
     timeout: 60000,
-    cwd: join(__dirname, '..', '..', '..'),
+    cwd: join(__dirname, '..'),
     env: process.env,
     shell: false
   });

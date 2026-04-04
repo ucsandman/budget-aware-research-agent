@@ -84,10 +84,10 @@ export function rewriteQueryForPaidSearch(query) {
 }
 
 const invokedPath = process.argv[1]?.replace(/\\/g, '/').toLowerCase() ?? '';
-if (invokedPath.endsWith('/research/budget-aware-research-agent/query-rewrite.mjs')) {
+if (invokedPath.endsWith('/query-rewrite.mjs')) {
   const query = process.argv.slice(2).join(' ').trim();
   if (!query) {
-    console.error('Usage: node research/budget-aware-research-agent/query-rewrite.mjs "<query>"');
+    console.error('Usage: node query-rewrite.mjs "<query>"');
     process.exit(1);
   }
   console.log(JSON.stringify(rewriteQueryForPaidSearch(query), null, 2));

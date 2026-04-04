@@ -1,6 +1,7 @@
 import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { rewriteQueryForPaidSearch } from './query-rewrite.mjs';
 import { runFreeResearch } from './free-research.mjs';
@@ -8,6 +9,8 @@ import { suggestFreeProviders } from './free-provider-registry.mjs';
 import { discoverProviders, pickProvider, classifyQueryCategory } from './provider-discovery.mjs';
 import { synthesizeAnswer } from './synthesize.mjs';
 import { logCost } from './cost-tracker.mjs';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const DEFAULT_REQUEST = {
   budgetUsdMax: 0.25,
@@ -18,7 +21,7 @@ const DEFAULT_REQUEST = {
   notes: ''
 };
 
-const LIVE_ARTIFACTS_DIR = 'C:/Users/sandm/clawd/research/budget-aware-research-agent/logs/live-paid';
+const LIVE_ARTIFACTS_DIR = join(__dirname, 'logs', 'live-paid');
 
 function parseArgs(argv) {
   const out = { ...DEFAULT_REQUEST, log: true, answerMode: false };
@@ -269,11 +272,11 @@ function executePaidSearch(query, dryRun, providerEndpoint = 'https://stableenri
 
   writeFileSync(payloadPath, JSON.stringify(payload, null, 2));
   const result = spawnSync(process.execPath, [
-    'research/budget-aware-research-agent/tmp/run-agentcash-fetch.mjs',
+    join(__dirname, 'lib', 'agentcash-fetch.mjs'),
     providerEndpoint,
     payloadPath
   ], {
-    cwd: 'C:/Users/sandm/clawd',
+    cwd: __dirname,
     encoding: 'utf8',
     shell: false,
     env: process.env
@@ -411,7 +414,6 @@ const FREE_RESEARCH_FALLBACK = {
 };
 
 async function runFreeResearchSafe(query, options) {
-  // First try the direct import (fast if cached)
   try {
     const directResult = await Promise.race([
       runFreeResearch(query, options),
@@ -419,12 +421,13 @@ async function runFreeResearchSafe(query, options) {
     ]);
     return directResult;
   } catch (err) {
-    if (err.message !== 'timeout') throw err;
+    if (err.message === 'timeout') {
+      return { ...FREE_RESEARCH_FALLBACK, query, qualityNotes: [`Free research timed out after ${FREE_RESEARCH_TIMEOUT_MS}ms`] };
+    }
+    // Non-timeout errors: log and return fallback so paid routing can still proceed
+    console.error(`[free-research] Error: ${err.message}`);
+    return { ...FREE_RESEARCH_FALLBACK, query, qualityNotes: [`Free research failed: ${err.message}`] };
   }
-
-  // If we get here, direct call timed out. Return fallback.
-  // The process will still have dangling handles but we can continue.
-  return { ...FREE_RESEARCH_FALLBACK, query, qualityNotes: [`Free research timed out after ${FREE_RESEARCH_TIMEOUT_MS}ms`] };
 }
 
 function printAnswer(request, freePass, decision, execution, finalResponse) {
@@ -544,8 +547,10 @@ async function main() {
   const logRecord = buildLogRecord(request, rewrite, freePass, freeProviderSuggestions, decision, execution, finalResponse);
 
   if (request.log) {
+    const logsDir = join(__dirname, 'logs');
+    mkdirSync(logsDir, { recursive: true });
     appendFileSync(
-      'C:/Users/sandm/clawd/research/budget-aware-research-agent/logs/runs.jsonl',
+      join(logsDir, 'runs.jsonl'),
       `${JSON.stringify(logRecord)}\n`
     );
   }
@@ -572,13 +577,25 @@ async function main() {
   }
 }
 
-main()
-  .then(() => {
-    // Force exit after a short delay to flush stdout
-    // Needed because dangling fetch handles may keep the event loop alive
-    setTimeout(() => process.exit(0), 200);
-  })
-  .catch((error) => {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exit(1);
-  });
+// Named exports for testing
+export { makeDecision, makeStayFreeResult };
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+  process.exit(1);
+});
+
+// Only run main() when executed directly (not imported for testing)
+const invoked = process.argv[1]?.replace(/\\/g, '/') ?? '';
+if (invoked.endsWith('/run-prototype.mjs')) {
+  main()
+    .then(() => {
+      // Force exit after a short delay to flush stdout
+      // Needed because dangling fetch handles may keep the event loop alive
+      setTimeout(() => process.exit(0), 200);
+    })
+    .catch((error) => {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    });
+}

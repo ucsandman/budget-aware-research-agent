@@ -1,10 +1,12 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { runStructuredFreeProviders } from './structured-free-providers.mjs';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const USER_AGENT = 'Mozilla/5.0 (compatible; BudgetAwareResearchAgent/0.1; +https://www.practicalsystems.io)';
-const CACHE_DIR = 'C:/Users/sandm/clawd/research/budget-aware-research-agent/cache/free-pass';
+const CACHE_DIR = join(__dirname, 'cache', 'free-pass');
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const BLOCKED_HOST_PATTERNS = [
   /medium\.com$/i,
@@ -438,10 +440,20 @@ async function computeFreeResearch(query, options = {}) {
   const signal = options.signal;
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
 
-  const structured = await runStructuredFreeProviders(query, options);
+  let structured;
+  try {
+    structured = await runStructuredFreeProviders(query, options);
+  } catch (err) {
+    structured = { results: [], notes: [`Structured providers failed: ${err.message}`] };
+  }
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
 
-  const search = await searchWeb(query, options.count ?? 8, signal);
+  let search;
+  try {
+    search = await searchWeb(query, options.count ?? 8, signal);
+  } catch (err) {
+    search = { provider: 'none', results: [], fallbackNotes: [`Web search failed: ${err.message}`] };
+  }
   const enriched = [];
   for (const result of search.results.slice(0, options.enrichCount ?? 6)) {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -556,12 +568,12 @@ export async function runFreeResearch(query, options = {}) {
 }
 
 const invokedPath = process.argv[1]?.replace(/\\/g, '/').toLowerCase() ?? '';
-if (invokedPath.endsWith('/research/budget-aware-research-agent/free-research.mjs')) {
+if (invokedPath.endsWith('/free-research.mjs')) {
   const args = process.argv.slice(2);
   const noCache = args.includes('--no-cache');
   const query = args.filter((arg) => arg !== '--no-cache').join(' ').trim();
   if (!query) {
-    console.error('Usage: node research/budget-aware-research-agent/free-research.mjs [--no-cache] "<query>"');
+    console.error('Usage: node free-research.mjs [--no-cache] "<query>"');
     process.exit(1);
   }
   runFreeResearch(query, { useCache: !noCache })

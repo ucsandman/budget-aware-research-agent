@@ -8,10 +8,12 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const INDEX_BASE = 'https://402index.io/api/v1';
-const CACHE_DIR = 'C:/Users/sandm/clawd/research/budget-aware-research-agent/cache/providers';
+const CACHE_DIR = join(__dirname, 'cache', 'providers');
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const CATEGORY_MAP = {
