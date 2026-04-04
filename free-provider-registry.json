@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "updatedAt": "2026-03-12",
+  "source": {
+    "repo": "public-apis/public-apis",
+    "url": "https://github.com/public-apis/public-apis"
+  },
+  "notes": [
+    "Curated for the Budget-Aware Research Agent wedge, not a wholesale import of the Public APIs repo.",
+    "These providers are intended as structured free-source candidates before paid escalation.",
+    "Selection bias: favored APIs that improve repeatability, structured retrieval, or known-domain lookups."
+  ],
+  "providers": [
+    {
+      "id": "openlibrary",
+      "name": "Open Library",
+      "category": "books",
+      "fromRepoCategory": "Books",
+      "homepage": "https://openlibrary.org/developers/api",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.5,
+      "stability": "high",
+      "queryIntents": ["book_lookup", "author_lookup", "isbn_lookup", "reference_lookup"],
+      "whyUseful": "Structured factual lookup for books and authors. Better than web search for known titles.",
+      "whenToUse": "Known books, citations, authors, ISBNs, editions.",
+      "whenNotToUse": "Current ecosystem scans or broad tool landscapes.",
+      "exampleQueryShapes": ["Find the publication history of a book", "Look up editions for this ISBN"]
+    },
+    {
+      "id": "crossref",
+      "name": "Crossref Metadata Search",
+      "category": "research",
+      "fromRepoCategory": "Books",
+      "homepage": "https://github.com/CrossRef/rest-api-doc",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.72,
+      "stability": "high",
+      "queryIntents": ["paper_lookup", "doi_lookup", "citation_lookup", "research_metadata"],
+      "whyUseful": "Strong structured metadata for papers, DOIs, and citations.",
+      "whenToUse": "Academic references, publication lookups, DOI resolution.",
+      "whenNotToUse": "Fresh market landscapes or commercial vendor discovery.",
+      "exampleQueryShapes": ["Find recent papers on x402", "Resolve this DOI and get metadata"]
+    },
+    {
+      "id": "domainsdb",
+      "name": "Domainsdb.info",
+      "category": "company-web",
+      "fromRepoCategory": "Business",
+      "homepage": "https://domainsdb.info/",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.66,
+      "stability": "medium",
+      "queryIntents": ["domain_lookup", "company_domain_discovery", "web_presence_lookup"],
+      "whyUseful": "Can help find or verify domains tied to companies or naming patterns.",
+      "whenToUse": "Known company names, domain discovery, domain variants.",
+      "whenNotToUse": "Deep company enrichment or current vendor landscape scans.",
+      "exampleQueryShapes": ["Find likely domains for this company", "Check if this naming pattern exists as domains"]
+    },
+    {
+      "id": "uk-bank-holidays",
+      "name": "UK Bank Holidays",
+      "category": "calendar",
+      "fromRepoCategory": "Calendar",
+      "homepage": "https://www.gov.uk/bank-holidays.json",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.35,
+      "stability": "high",
+      "queryIntents": ["holiday_lookup"],
+      "whyUseful": "Very stable structured holiday data for a narrow slice of date questions.",
+      "whenToUse": "UK holiday checks.",
+      "whenNotToUse": "General research or ecosystem mapping.",
+      "exampleQueryShapes": ["Is this date a UK bank holiday?"]
+    },
+    {
+      "id": "nager-date",
+      "name": "Nager.Date",
+      "category": "calendar",
+      "fromRepoCategory": "Calendar",
+      "homepage": "https://date.nager.at",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.44,
+      "stability": "high",
+      "queryIntents": ["holiday_lookup", "country_holiday_lookup"],
+      "whyUseful": "Useful structured holiday lookup across many countries.",
+      "whenToUse": "Public-holiday questions by country.",
+      "whenNotToUse": "Current market research or vendor discovery.",
+      "exampleQueryShapes": ["What holidays are coming up in Germany?"]
+    },
+    {
+      "id": "coingecko",
+      "name": "CoinGecko",
+      "category": "crypto",
+      "fromRepoCategory": "Cryptocurrency",
+      "homepage": "https://www.coingecko.com/api",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.77,
+      "stability": "high",
+      "queryIntents": ["token_lookup", "crypto_market_data", "project_lookup", "chain_ecosystem_lookup"],
+      "whyUseful": "Strong free structured crypto market and project data. Good for known-token or known-project lookups.",
+      "whenToUse": "Crypto project facts, token metadata, market metrics.",
+      "whenNotToUse": "Cross-vendor agent tooling landscapes unless crypto-specific.",
+      "exampleQueryShapes": ["Get metadata for this token", "Compare these crypto projects"]
+    },
+    {
+      "id": "defillama",
+      "name": "DefiLlama",
+      "category": "crypto-protocols",
+      "fromRepoCategory": "Cryptocurrency",
+      "homepage": "https://api-docs.defillama.com/",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.83,
+      "stability": "high",
+      "queryIntents": ["protocol_lookup", "project_lookup", "chain_ecosystem_lookup", "defi_entity_lookup"],
+      "whyUseful": "Strong structured protocol and project lookup for crypto ecosystems. Better fit than generic web search for known protocol, chain, and DeFi entity questions.",
+      "whenToUse": "Known protocols, chain ecosystems, tokenized project comparisons, Base-adjacent entity lookup.",
+      "whenNotToUse": "Broad non-crypto vendor landscapes or purely conceptual questions.",
+      "exampleQueryShapes": ["Compare Base protocols by TVL", "Look up this protocol or chain project"]
+    },
+    {
+      "id": "coincap",
+      "name": "CoinCap",
+      "category": "crypto",
+      "fromRepoCategory": "Cryptocurrency",
+      "homepage": "https://docs.coincap.io/",
+      "auth": "none",
+      "https": true,
+      "fitScore": 0.63,
+      "stability": "medium",
+      "queryIntents": ["crypto_market_data", "asset_price_lookup"],
+      "whyUseful": "Simple structured asset pricing and market lookups.",
+      "whenToUse": "Quick asset checks.",
+      "whenNotToUse": "Broader ecosystem synthesis.",
+      "exampleQueryShapes": ["What is the current market cap of X?"]
+    },
+    {
+      "id": "etherscan",
+      "name": "Etherscan",
+      "category": "blockchain",
+      "fromRepoCategory": "Blockchain",
+      "homepage": "https://etherscan.io/apis",
+      "auth": "apiKey",
+      "https": true,
+      "fitScore": 0.74,
+      "stability": "high",
+      "queryIntents": ["wallet_lookup", "contract_lookup", "transaction_lookup", "onchain_verification"],
+      "whyUseful": "Great for known onchain entities and verification workflows.",
+      "whenToUse": "Specific wallets, contracts, tx hashes, token holders, onchain history.",
+      "whenNotToUse": "General market mapping without specific identifiers.",
+      "exampleQueryShapes": ["Inspect this contract", "Verify this transaction"]
+    },
+    {
+      "id": "the-graph",
+      "name": "The Graph",
+      "category": "blockchain",
+      "fromRepoCategory": "Blockchain",
+      "homepage": "https://thegraph.com",
+      "auth": "apiKey",
+      "https": true,
+      "fitScore": 0.7,
+      "stability": "medium",
+      "queryIntents": ["onchain_analytics", "subgraph_lookup", "protocol_metrics"],
+      "whyUseful": "Structured protocol and network analytics for specific indexed ecosystems.",
+      "whenToUse": "Known protocol metrics or indexed chain data.",
+      "whenNotToUse": "Broad discovery if you do not already know the relevant protocol/subgraph.",
+      "exampleQueryShapes": ["Get protocol usage metrics", "Query indexed events for this protocol"]
+    },
+    {
+      "id": "urlscan",
+      "name": "URLScan.io",
+      "category": "security-web",
+      "fromRepoCategory": "Anti-Malware",
+      "homepage": "https://urlscan.io/about-api/",
+      "auth": "apiKey",
+      "https": true,
+      "fitScore": 0.58,
+      "stability": "high",
+      "queryIntents": ["url_lookup", "site_inspection", "web_infrastructure_lookup"],
+      "whyUseful": "Can add structured signals about a site or URL when web pages are sketchy or sparse.",
+      "whenToUse": "Inspecting specific URLs or understanding web infrastructure footprints.",
+      "whenNotToUse": "General research landscapes.",
+      "exampleQueryShapes": ["Inspect this URL", "What infrastructure does this site use?"]
+    },
+    {
+      "id": "google-safe-browsing",
+      "name": "Google Safe Browsing",
+      "category": "security-web",
+      "fromRepoCategory": "Anti-Malware",
+      "homepage": "https://developers.google.com/safe-browsing/",
+      "auth": "apiKey",
+      "https": true,
+      "fitScore": 0.4,
+      "stability": "high",
+      "queryIntents": ["url_safety_check"],
+      "whyUseful": "Useful guardrail check before trusting or surfacing questionable domains.",
+      "whenToUse": "URL safety validation.",
+      "whenNotToUse": "Substantive research retrieval.",
+      "exampleQueryShapes": ["Is this URL suspicious?"]
+    }
+  ],
+  "routing": {
+    "intentRules": [
+      {
+        "intent": "paper_lookup",
+        "patterns": ["doi", "paper", "citation", "research paper", "publication"],
+        "providerIds": ["crossref"]
+      },
+      {
+        "intent": "book_lookup",
+        "patterns": ["isbn", "book", "edition", "author"],
+        "providerIds": ["openlibrary"]
+      },
+      {
+        "intent": "domain_lookup",
+        "patterns": ["domain", "website", "company domain", "web presence"],
+        "providerIds": ["domainsdb"]
+      },
+      {
+        "intent": "crypto_market_data",
+        "patterns": ["token", "coin", "crypto", "market cap", "onchain", "wallet", "contract"],
+        "providerIds": ["coingecko", "coincap", "etherscan", "the-graph"]
+      },
+      {
+        "intent": "protocol_lookup",
+        "patterns": ["protocol", "defi", "tvl", "base", "chain ecosystem", "project lookup"],
+        "providerIds": ["defillama", "coingecko"]
+      },
+      {
+        "intent": "holiday_lookup",
+        "patterns": ["holiday", "bank holiday", "public holiday"],
+        "providerIds": ["nager-date", "uk-bank-holidays"]
+      },
+      {
+        "intent": "url_lookup",
+        "patterns": ["url", "domain safety", "site inspection", "site tech"],
+        "providerIds": ["urlscan", "google-safe-browsing"]
+      }
+    ],
+    "fallbackPolicy": {
+      "default": "Use curated structured APIs only for narrow known-entity lookups. For broad discovery, keep using free web search first.",
+      "broadMapping": "Do not route broad ecosystem / landscape / roundup prompts directly to structured free APIs unless an entity-specific subtask has already been extracted.",
+      "paidEscalationHint": "If free structured APIs do not cover the query intent or return sparse results, continue through rewrite + paid escalation logic."
+    }
+  }
+}

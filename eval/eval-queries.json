@@ -1,0 +1,74 @@
+[
+  {
+    "id": "conceptual_01",
+    "category": "conceptual",
+    "query": "What is x402 and how does it work?",
+    "expectFree": true,
+    "notes": "Well-documented concept, free should suffice"
+  },
+  {
+    "id": "conceptual_02",
+    "category": "conceptual",
+    "query": "What is the difference between MCP and A2A protocols for AI agents?",
+    "expectFree": true,
+    "notes": "Established topic with good free coverage"
+  },
+  {
+    "id": "current_01",
+    "category": "current-events",
+    "query": "What agent framework releases happened in the last 2 weeks?",
+    "mustBeCurrent": true,
+    "expectFree": false,
+    "notes": "Time-sensitive, free sources likely stale"
+  },
+  {
+    "id": "current_02",
+    "category": "current-events",
+    "query": "What is the current Solana TPS and network status?",
+    "mustBeCurrent": true,
+    "expectFree": false,
+    "notes": "Real-time data, needs fresh sources"
+  },
+  {
+    "id": "technical_01",
+    "category": "technical",
+    "query": "How do you implement x402 payments in a Node.js API?",
+    "expectFree": true,
+    "notes": "Technical how-to, docs should cover it"
+  },
+  {
+    "id": "technical_02",
+    "category": "technical",
+    "query": "What are the best practices for building multi-agent systems with tool use?",
+    "expectFree": true,
+    "notes": "Broad technical topic"
+  },
+  {
+    "id": "market_01",
+    "category": "market-research",
+    "query": "Who are the main competitors to AgentCash in the agent payments space?",
+    "expectFree": false,
+    "notes": "Niche market, may need paid for comprehensive coverage"
+  },
+  {
+    "id": "entity_01",
+    "category": "named-entity",
+    "query": "What is Coinbase's role in the x402 protocol ecosystem?",
+    "expectFree": true,
+    "notes": "Well-known entity, should have coverage"
+  },
+  {
+    "id": "defi_01",
+    "category": "defi",
+    "query": "What are the top DEX aggregators on Base chain by volume?",
+    "expectFree": false,
+    "notes": "DeFi data, may need specialized sources"
+  },
+  {
+    "id": "obscure_01",
+    "category": "obscure",
+    "query": "What is the 402 Index and how many providers does it track?",
+    "expectFree": false,
+    "notes": "Very niche, likely needs paid search"
+  }
+]

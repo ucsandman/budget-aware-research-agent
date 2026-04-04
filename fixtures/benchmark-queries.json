@@ -1,0 +1,72 @@
+[
+  {
+    "id": "q1_browser_infra_scan",
+    "group": "current_tool_vendor_landscape",
+    "query": "What are the most relevant browser infrastructure or headless browser projects for AI agents right now, and how do they differ?",
+    "expectedPressure": ["freshness", "tool_comparison"],
+    "likelyPaidTrigger": true
+  },
+  {
+    "id": "q2_x402_landscape",
+    "group": "current_tool_vendor_landscape",
+    "query": "What are the most relevant tools, rails, and platforms right now for agent-native payments and x402-style workflows?",
+    "expectedPressure": ["freshness", "ecosystem_mapping"],
+    "likelyPaidTrigger": true
+  },
+  {
+    "id": "q3_agent_research_vendors",
+    "group": "current_tool_vendor_landscape",
+    "query": "What are the best current vendors for AI agent web research, search augmentation, and scraping workflows?",
+    "expectedPressure": ["vendor_comparison", "current_state"],
+    "likelyPaidTrigger": true
+  },
+  {
+    "id": "q4_guardrails_vs_routing",
+    "group": "sharper_decision_support",
+    "query": "For an early-stage builder exploring paid-agent workflows, is it smarter right now to start with spend guardrails or provider routing, and why?",
+    "expectedPressure": ["current_signal", "structured_synthesis"],
+    "likelyPaidTrigger": false
+  },
+  {
+    "id": "q5_programmatic_purchase_ecosystem",
+    "group": "sharper_decision_support",
+    "query": "Map the current ecosystem around tools that let agents buy premium data or services programmatically.",
+    "expectedPressure": ["ecosystem_completeness"],
+    "likelyPaidTrigger": true
+  },
+  {
+    "id": "q6_exa_alternatives",
+    "group": "sharper_decision_support",
+    "query": "What are the current alternatives to Exa-backed paid research APIs for agent workflows, and what tradeoffs matter most?",
+    "expectedPressure": ["vendor_alternatives", "current_state"],
+    "likelyPaidTrigger": true
+  },
+  {
+    "id": "q7_x402_simple_explanation",
+    "group": "should_stay_free",
+    "query": "What is x402 in simple terms, and why might it matter for agent transactions?",
+    "expectedPressure": ["conceptual_explanation"],
+    "likelyPaidTrigger": false
+  },
+  {
+    "id": "q8_first_payment_wedge",
+    "group": "should_stay_free",
+    "query": "What makes a good first wedge for agent-native payment infrastructure?",
+    "expectedPressure": ["reasoning"],
+    "likelyPaidTrigger": false
+  },
+  {
+    "id": "q9_last_30_days_changes",
+    "group": "edge_case",
+    "query": "What changed in the agent tooling ecosystem in the last 30 days that actually matters for builders?",
+    "expectedPressure": ["high_freshness"],
+    "likelyPaidTrigger": true
+  },
+  {
+    "id": "q10_agent_economy_future",
+    "group": "edge_case",
+    "query": "What are interesting future opportunities in agent economies?",
+    "expectedPressure": ["vague_future"],
+    "likelyPaidTrigger": false
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "chain_category_base_dexes",
+    "shape": ["chain", "category"],
+    "query": "Which Base DEX protocols look most relevant right now, and how do they differ?",
+    "expectedBehavior": {
+      "structuredProvider": "defillama_assist_only",
+      "paidLikely": true,
+      "notes": "Broad DEX comparison on a named chain should use DefiLlama as assistive context, not the dominant answer source."
+    }
+  },
+  {
+    "id": "chain_category_solana_lending",
+    "shape": ["chain", "category"],
+    "query": "What lending protocols on Solana look most active right now?",
+    "expectedBehavior": {
+      "structuredProvider": "defillama_primary_free_signal",
+      "paidLikely": true,
+      "notes": "Chain plus category lookup should let structured protocol data help strongly."
+    }
+  },
+  {
+    "id": "named_entity_aerodrome_base",
+    "shape": ["chain", "named_entity"],
+    "query": "What does DefiLlama show for Aerodrome on Base, and what category does it fit?",
+    "expectedBehavior": {
+      "structuredProvider": "defillama_primary_free_signal",
+      "paidLikely": false,
+      "notes": "Named-entity lookup should score highly and often stay free."
+    }
+  },
+  {
+    "id": "named_entity_morpho_base_lending",
+    "shape": ["chain", "category", "named_entity"],
+    "query": "Is Morpho showing up as a Base lending protocol, and what does the free evidence say?",
+    "expectedBehavior": {
+      "structuredProvider": "defillama_primary_free_signal",
+      "paidLikely": false,
+      "notes": "Named protocol plus category plus chain should be a strong structured free-provider case."
+    }
+  },
+  {
+    "id": "broad_dex_tradeoffs_no_chain",
+    "shape": ["category"],
+    "query": "What are the main tradeoffs across current DEX protocols for builders?",
+    "expectedBehavior": {
+      "structuredProvider": "defillama_assist_only",
+      "paidLikely": true,
+      "notes": "Broad DEX comparison without a specific entity should trigger the new hybrid routing rule."
+    }
+  },
+  {
+    "id": "crossref_academic_lookup_control",
+    "shape": ["academic_lookup"],
+    "query": "Find recent research papers or citations about agent payments and machine-to-machine commerce.",
+    "expectedBehavior": {
+      "structuredProvider": "crossref_primary_free_signal",
+      "paidLikely": false,
+      "notes": "Control query to confirm Crossref still activates correctly when academic intent is real."
+    }
+  }
+]

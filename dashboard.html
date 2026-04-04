@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Agent Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e4e4e7;
+    --muted: #71717a;
+    --accent: #6366f1;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 24px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card .label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .card .value { font-size: 1.75rem; font-weight: 700; margin-top: 4px; }
+  .card .detail { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+  .paid { color: var(--amber); font-weight: 600; }
+  .free { color: var(--green); font-weight: 600; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover { background: rgba(99, 102, 241, 0.05); }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    padding: 12px 0;
+  }
+  .bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 40px;
+  }
+  .bar {
+    width: 100%;
+    max-width: 48px;
+    background: var(--accent);
+    border-radius: 4px 4px 0 0;
+    min-height: 2px;
+    transition: height 0.3s;
+  }
+  .bar-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+  .bar-value {
+    font-size: 0.7rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .provider-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .provider-badge {
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+  .empty { color: var(--muted); text-align: center; padding: 40px; }
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>🔥 Research Agent Dashboard</h1>
+<p class="subtitle">Budget-aware routing analytics / Updated 2026-04-03 21:50:44 UTC</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="label">Total Queries</div>
+    <div class="value">20</div>
+    <div class="detail"><span class="free">17 free</span> / <span class="paid">3 paid</span></div>
+  </div>
+  <div class="card">
+    <div class="label">Total Spend</div>
+    <div class="value">$0.0162</div>
+    <div class="detail">Search: $0.0150 / Synthesis: $0.0012</div>
+  </div>
+  <div class="card">
+    <div class="label">Avg Cost / Query</div>
+    <div class="value">$0.0008</div>
+    <div class="detail">Avg paid: $0.0054</div>
+  </div>
+  <div class="card">
+    <div class="label">Routing Split</div>
+    <div class="value">85% free</div>
+    <div class="detail">3 queries escalated to paid</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+  <div class="section-title">Daily Activity</div>
+  
+  <div class="bar-chart">
+    <div class="bar-col">
+        <div class="bar-value">20</div>
+        <div class="bar" style="height: 100px"></div>
+        <div class="bar-label">04-03</div>
+      </div>
+  </div>
+  
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+  <div class="section-title">Providers</div>
+  <div class="provider-list">
+    <div class="provider-badge">Exa: Get a direct answer to a  &mdash; 20 queries, $0.0162</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">Query History (last 50)</div>
+  
+  <div style="overflow-x: auto;">
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Query</th><th>Route</th><th>Cost</th><th>Conf</th><th>Provider</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+      <td>2026-04-03 21:50:13</td>
+      <td>What is the difference between optimistic and zk rollups?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:50:00</td>
+      <td>What are rollups in Ethereum?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>72%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:49:48</td>
+      <td>What is EigenLayer?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:45:30</td>
+      <td>What is Aave v4?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:44:19</td>
+      <td>What is UniswapX?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:43:38</td>
+      <td>Top 3 AI coding agents by GitHub stars</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0.0003</td>
+      <td>72%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:41:13</td>
+      <td>Who are the leading x402 payment infrastructure providers?</td>
+      <td class="paid">💰 PAID</td>
+      <td>$0.0053</td>
+      <td>80%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:40:54</td>
+      <td>What is Base chain?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 21:07:06</td>
+      <td>What are the top DEX aggregators on Base by volume?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>72%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:45:35</td>
+      <td>What agent framework releases happened in March 2026?</td>
+      <td class="paid">💰 PAID</td>
+      <td>$0.0053</td>
+      <td>80%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:45:11</td>
+      <td>What DeFi protocols on Base chain have the highest TVL right now?</td>
+      <td class="paid">💰 PAID</td>
+      <td>$0.0053</td>
+      <td>72%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:36:58</td>
+      <td>What is the 402 Index and how many providers does it track?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:36:58</td>
+      <td>What are the top DEX aggregators on Base chain by volume?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>72%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>Who are the main competitors to AgentCash in the agent payments space?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>80%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>What are the best practices for building multi-agent systems with tool use?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>72%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>How do you implement x402 payments in a Node.js API?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>80%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>What is the current Solana TPS and network status?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>What agent framework releases happened in the last 2 weeks?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>80%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>What is the difference between MCP and A2A protocols for AI agents?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+<tr>
+      <td>2026-04-03 20:35:58</td>
+      <td>What is x402 and how does it work?</td>
+      <td class="free">🆓 FREE</td>
+      <td>$0</td>
+      <td>88%</td>
+      <td>Exa: Get a direct answer to a question u</td>
+    </tr>
+    </tbody>
+  </table>
+  </div>
+  
+</div>
+
+</body>
+</html>
