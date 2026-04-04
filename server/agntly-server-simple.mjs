@@ -2,32 +2,23 @@
 /**
  * agntly-server-simple.mjs — Minimal HTTP endpoint for Agntly marketplace
  * For testing and debugging before subprocess integration
+ *
+ * Environment:
+ *   AGNTLY_API_KEY    — Agntly marketplace API key
+ *   AGNTLY_BASE_URL   — API base (default: https://sandbox.api.agntly.io)
  */
 
 import { createServer } from 'node:http';
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load config from environment
+const API_KEY = process.env.AGNTLY_API_KEY;
+const API_BASE = process.env.AGNTLY_BASE_URL || 'https://sandbox.api.agntly.io';
 
-// Load config
-let API_KEY, API_BASE;
-try {
-  const envPath = join(__dirname, '..', '..', 'secrets', 'agntly-sandbox.env');
-  const envLines = readFileSync(envPath, 'utf8').split('\n');
-  const env = {};
-  for (const line of envLines) {
-    const m = line.match(/^([A-Z_]+)=(.+)$/);
-    if (m) env[m[1]] = m[2].trim();
-  }
-  API_KEY = env.AGNTLY_API_KEY;
-  API_BASE = env.AGNTLY_BASE_URL || 'https://sandbox.api.agntly.io';
-  console.log('[config] API_KEY loaded, API_BASE:', API_BASE);
-} catch (e) {
-  console.error('[config] Error:', e.message);
-  process.exit(1);
+if (!API_KEY) {
+  console.warn('[warn] AGNTLY_API_KEY not set — running in mock-only mode');
 }
+
+console.log('[config] API_BASE:', API_BASE);
 
 const PORT = 3847;
 
@@ -97,7 +88,7 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`✓ Agntly research agent listening on http://localhost:${PORT} (MOCK MODE)`);
+  console.log(`Agntly research agent listening on http://localhost:${PORT} (MOCK MODE)`);
   console.log(`  POST /agent/run   — task callback endpoint`);
   console.log(`  GET  /health      — health check`);
 });

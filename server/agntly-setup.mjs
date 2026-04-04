@@ -1,32 +1,27 @@
 #!/usr/bin/env node
 /**
  * agntly-setup.mjs — Register agent on Agntly marketplace, create wallet, self-test
- * 
+ *
+ * Environment:
+ *   AGNTLY_API_KEY    — Agntly marketplace API key
+ *   AGNTLY_BASE_URL   — API base (default: https://sandbox.api.agntly.io)
+ *
  * Usage:
- *   node agntly-setup.mjs register    — register agent on marketplace
- *   node agntly-setup.mjs wallet      — create/check wallet
- *   node agntly-setup.mjs test        — dispatch a test task to our own agent
- *   node agntly-setup.mjs status      — check agent + wallet status
+ *   node server/agntly-setup.mjs register    — register agent on marketplace
+ *   node server/agntly-setup.mjs wallet      — create/check wallet
+ *   node server/agntly-setup.mjs test        — dispatch a test task to our own agent
+ *   node server/agntly-setup.mjs status      — check agent + wallet status
  */
 
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Load config
-const envPath = join(__dirname, '..', '..', 'secrets', 'agntly-sandbox.env');
-const envLines = readFileSync(envPath, 'utf8').split('\n');
-const env = {};
-for (const line of envLines) {
-  const m = line.match(/^([A-Z_]+)=(.+)$/);
-  if (m) env[m[1]] = m[2].trim();
-}
-
-const API_KEY = env.AGNTLY_API_KEY;
-const API_BASE = env.AGNTLY_BASE_URL || 'https://sandbox.api.agntly.io';
+const API_KEY = process.env.AGNTLY_API_KEY;
+const API_BASE = process.env.AGNTLY_BASE_URL || 'https://sandbox.api.agntly.io';
 const AGENT_ID = 'practical-systems-research';
+
+if (!API_KEY) {
+  console.error('Error: AGNTLY_API_KEY environment variable is required');
+  console.error('Set it in your .env file or export it in your shell');
+  process.exit(1);
+}
 
 async function api(method, path, body) {
   const url = `${API_BASE}${path}`;
@@ -48,10 +43,10 @@ async function register() {
     agentId: AGENT_ID,
     name: 'Budget-Aware Research Agent',
     description: 'Smart research agent that routes queries between free and paid (x402) sources based on query complexity, freshness needs, and budget constraints. Returns synthesized answers with source citations and confidence scores.',
-    endpoint: 'http://localhost:3847/agent/run',  // will update with tunnel/public URL
+    endpoint: 'http://localhost:3847/agent/run',
     priceUsdc: '0.02',
     category: 'research',
-    tags: ['x402', 'research', 'budget-aware', 'synthesis', 'practical-systems'],
+    tags: ['x402', 'research', 'budget-aware', 'synthesis'],
   });
   console.log(JSON.stringify(result, null, 2));
   return result;
@@ -59,10 +54,9 @@ async function register() {
 
 async function wallet() {
   console.log('Checking/creating wallet...');
-  // Try to get existing wallet first
   const existing = await api('GET', '/v1/wallets');
   console.log('Existing wallets:', JSON.stringify(existing, null, 2));
-  
+
   if (!existing.data || (Array.isArray(existing.data) && existing.data.length === 0)) {
     console.log('Creating new wallet...');
     const created = await api('POST', '/v1/wallets', {
@@ -84,11 +78,11 @@ async function test() {
     timeoutMs: 60000,
   });
   console.log(JSON.stringify(result, null, 2));
-  
+
   if (result.success && result.data?.id) {
     console.log(`\nTask created: ${result.data.id}`);
     console.log(`Status: ${result.data.status}`);
-    console.log(`\nCheck later with: node agntly-setup.mjs task-status ${result.data.id}`);
+    console.log(`\nCheck later with: node server/agntly-setup.mjs task-status ${result.data.id}`);
   }
   return result;
 }
@@ -104,7 +98,7 @@ async function status() {
   const agents = await api('GET', '/v1/agents');
   const ours = agents.data?.find?.(a => a.agentId === AGENT_ID) || 'not found';
   console.log('Agent:', JSON.stringify(ours, null, 2));
-  
+
   console.log('\n--- Wallet Status ---');
   const wallets = await api('GET', '/v1/wallets');
   console.log('Wallets:', JSON.stringify(wallets, null, 2));
@@ -119,5 +113,5 @@ switch (cmd) {
   case 'status': await status(); break;
   case 'task-status': await taskStatus(process.argv[3]); break;
   default:
-    console.log('Usage: node agntly-setup.mjs [register|wallet|test|status|task-status <id>]');
+    console.log('Usage: node server/agntly-setup.mjs [register|wallet|test|status|task-status <id>]');
 }
