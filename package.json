@@ -1,0 +1,42 @@
+{
+  "name": "budget-aware-research-agent",
+  "version": "1.0.0",
+  "description": "Research agent that routes between free and paid (x402) search sources based on query characteristics, budget, and expected value gain",
+  "type": "module",
+  "main": "run-prototype.mjs",
+  "bin": {
+    "research": "./research.mjs",
+    "research-costs": "./cost-tracker.mjs",
+    "research-batch": "./batch.mjs",
+    "research-compare": "./compare.mjs",
+    "research-dashboard": "./dashboard.mjs",
+    "research-history": "./history-search.mjs",
+    "research-retry": "./retry-handler.mjs"
+  },
+  "scripts": {
+    "start": "node research.mjs",
+    "test": "node --test test/*.test.mjs",
+    "eval": "node eval/run-eval.mjs",
+    "costs": "node cost-tracker.mjs summary",
+    "dashboard": "node dashboard.mjs"
+  },
+  "keywords": [
+    "research",
+    "agent",
+    "x402",
+    "micropayments",
+    "search",
+    "routing",
+    "budget-aware",
+    "ai-agent"
+  ],
+  "author": "MoltFire",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsandman/budget-aware-research-agent.git"
+  }
+}
